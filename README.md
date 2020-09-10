@@ -7,3 +7,5 @@ Based on [Luke Smith](https://github.com/LukeSmithxyz/voidrice) Voidrice. Slight
 3.	Added some vim plugins. CoC for example
 4. 	Some changes to .config/fontconfig. Added some Nerd fonts. JetBrainsMono as base for ST, DWM and that kind of stuff.
 5.  Some cosmetic changes to dunst.
+6.  SpaceVim is our new text editor. Plugged it a bit. It's quite comlicated, but i think to gice it a try.
+7.   
