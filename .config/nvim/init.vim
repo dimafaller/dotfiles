@@ -1,5 +1,6 @@
 let mapleader =","
 
+"===Plugins and stuff===
 if ! filereadable(system('echo -n "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/autoload/plug.vim"'))
 	echo "Downloading junegunn/vim-plug to manage plugins..."
 	silent !mkdir -p ${XDG_CONFIG_HOME:-$HOME/.config}/nvim/autoload/
@@ -7,48 +8,213 @@ if ! filereadable(system('echo -n "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/autolo
 	autocmd VimEnter * PlugInstall
 endif
 
+ autocmd BufWritePost ~/.local/src/dwmblocks/config.h !cd ~/.local/src/dwmblocks/; sudo make install && { killall -q dwmblocks;setsid dwmblocks & }
+
 call plug#begin(system('echo -n "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/plugged"'))
 Plug 'tpope/vim-surround'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'preservim/nerdtree'
 Plug 'junegunn/goyo.vim'
 Plug 'PotatoesMaster/i3-vim-syntax'
 Plug 'jreybert/vimagit'
-Plug 'lukesmithxyz/vimling'
-Plug 'vimwiki/vimwiki'
 Plug 'bling/vim-airline'
 Plug 'tpope/vim-commentary'
 Plug 'kovetskiy/sxhkd-vim'
 Plug 'ryanoasis/vim-devicons'
 Plug 'mattn/emmet-vim'
-Plug 'ap/vim-css-color'
+" Plug 'ap/vim-css-color'
 Plug 'lervag/vimtex'
-Plug 'Shougo/deoppet.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'neoclide/coc-tsserver', {'do': 'yarn install --frozen-lockfile'}
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'morhetz/gruvbox'
+Plug 'mhinz/vim-startify'
+Plug 'jiangmiao/auto-pairs'
+Plug 'alvan/vim-closetag'
+Plug 'airblade/vim-gitgutter'
+Plug 'tpope/vim-fugitive'
+Plug 'machakann/vim-sandwich'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+Plug 'junegunn/limelight.vim'
+Plug 'sheerun/vim-polyglot'
+Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
 call plug#end()
 
-set bg=light
+" fzf
+map ; :Files<CR>
+let g:fzf_preview_window = 'right:60%'
+
+" Search CTRLP
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
+set runtimepath^=~/.config/nvim/bundle/ctrlp.vim
+
+" Theemeing
+set bg=dark
+colorscheme gruvbox
+"End of theeming
+
+" ===Splits made easy by ctrl-'vimkeys'===
+function! WinMove(key)
+    let t:curwin = winnr()
+    exec "wincmd ".a:key
+    if (t:curwin == winnr())
+        if (match(a:key,'[jk]'))
+            wincmd v
+        else
+            wincmd s
+        endif
+        exec "wincmd ".a:key
+    endif
+endfunction
+
+nnoremap <silent> <C-h> :call WinMove('h')<CR>
+nnoremap <silent> <C-j> :call WinMove('j')<CR>
+nnoremap <silent> <C-k> :call WinMove('k')<CR>
+nnoremap <silent> <C-l> :call WinMove('l')<CR>
+" ===End of easy splits===
+
+" Netrw
+  let g:netrw_banner = 0
+  let g:netrw_liststyle = 3
+  let g:netrw_browse_split = 4
+  let g:netrw_winsize = 20
+
+  function! OpenToRight()
+    :normal v
+    let g:path=expand('%:p')
+    execute 'q!'
+    execute 'belowright vnew' g:path
+    :normal <C-w>l
+  endfunction
+
+  function! OpenBelow()
+    :normal v
+    let g:path=expand('%:p')
+    execute 'q!'
+    execute 'belowright new' g:path
+    :normal <C-w>l
+  endfunction
+
+  function! OpenTab()
+    :normal v
+    let g:path=expand('%:p')
+    execute 'q!'
+    execute 'tabedit' g:path
+    :normal <C-w>l
+  endfunction
+
+  function! NetrwMappings()
+      " Hack fix to make ctrl-l work properly
+      noremap <buffer> <A-l> <C-w>l
+      noremap <buffer> <C-l> <C-w>l
+      noremap <silent> <A-f> :call ToggleNetrw()<CR>
+      noremap <buffer> V :call OpenToRight()<cr>
+      noremap <buffer> H :call OpenBelow()<cr>
+      noremap <buffer> T :call OpenTab()<cr>
+  endfunction
+
+  augroup netrw_mappings
+      autocmd!
+      autocmd filetype netrw call NetrwMappings()
+  augroup END
+
+  " Allow for netrw to be toggled
+  function! ToggleNetrw()
+      if g:NetrwIsOpen
+          let i = bufnr("$")
+          while (i >= 1)
+              if (getbufvar(i, "&filetype") == "netrw")
+                  silent exe "bwipeout " . i
+              endif
+              let i-=1
+          endwhile
+          let g:NetrwIsOpen=0
+      else
+          let g:NetrwIsOpen=1
+          silent Lexplore
+      endif
+  endfunction
+
+  " Check before opening buffer on any file
+  function! NetrwOnBufferOpen()
+    if exists('b:noNetrw')
+        return
+    endif
+    call ToggleNetrw()
+  endfun
+
+  " Close Netrw if it's the only buffer open
+  autocmd WinEnter * if winnr('$') == 1 && getbufvar(winbufnr(winnr()), "&filetype") == "netrw" || &buftype == 'quickfix' |q|endif
+
+  " Make netrw act like a project Draw
+  augroup ProjectDrawer
+    autocmd!
+		" Don't open Netrw
+    autocmd VimEnter ~/.config/joplin/tmp/*,/tmp/calcurse*,~/.calcurse/notes/*,~/vimwiki/*,*/.git/COMMIT_EDITMSG let b:noNetrw=1
+    autocmd VimEnter * :call NetrwOnBufferOpen()
+  augroup END
+
+  let g:NetrwIsOpen=0
+  """""""""""NETRW-END"""""""""""""""""""""""
+
+" ------Vim Auto Closetag------
+  " filenames like *.xml, *.html, *.xhtml, ...
+  " These are the file extensions where this plugin is enabled.
+  let g:closetag_filenames = '*.html,*.xhtml,*.jsx,*.js,*.tsx'
+
+  " filenames like *.xml, *.xhtml, ...
+  " This will make the list of non-closing tags self-closing in the specified files.
+  let g:closetag_xhtml_filenames = '*.xml,*.xhtml,*.jsx,*.js,*.tsx'
+
+  " filetypes like xml, html, xhtml, ...
+  " These are the file types where this plugin is enabled.
+  let g:closetag_filetypes = 'html,xhtml,jsx,js,tsx'
+
+  " filetypes like xml, xhtml, ...
+  " This will make the list of non-closing tags self-closing in the specified files.
+  let g:closetag_xhtml_filetypes = 'xml,xhtml,jsx,js,tsx'
+
+  " integer value [0|1]
+  " This will make the list of non-closing tags case-sensitive (e.g. `<Link>` will be closed while `<link>` won't.)
+  let g:closetag_emptyTags_caseSensitive = 1
+
+  " Disables auto-close if not in a "valid" region (based on filetype)
+  let g:closetag_regions = {
+      \ 'typescript.tsx': 'jsxRegion,tsxRegion',
+      \ 'javascript.jsx': 'jsxRegion',
+      \ }
+
+  " Shortcut for closing tags, default is '>'
+  let g:closetag_shortcut = '>'
+
+  " Add > at current position without closing the current tag, default is ''
+  let g:closetag_close_shortcut = '<leader>>'
+
 set go=a
 set mouse=a
+set cursorline "highlitinig the current line
 set nohlsearch
 set clipboard+=unnamedplus
 set ts=4
-
-
+nnoremap <A-z> :tabp<CR>
+nnoremap <A-n> :tabn<CR>
 " Some basics:
 	nnoremap c "_c
 	set nocompatible
 	filetype plugin on
 	syntax on
 	set encoding=utf-8
-	set number relativenumber
+	set number relativenumber "the relative number feature
+
 " Enable autocompletion:
 	set wildmode=longest,list,full
+
 " Disables automatic commenting on newline:
 	autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
 " Goyo plugin makes text more readable when writing prose:
-	map <leader>f :Goyo \| set bg=light \| set linebreak<CR>
+    autocmd! User GoyoEnter Limelight
+    autocmd! User GoyoLeave Limelight!
+	map <leader>f :Goyo \| set bg=dark \| set linebreak<CR>
 
 " Spell-check set to <leader>o, 'o' for 'orthography':
 	map <leader>o :setlocal spell! spelllang=ru_ru<CR>
@@ -57,36 +223,25 @@ set ts=4
 	set splitbelow splitright
 
 " Nerd tree
-	map <leader>n :NERDTreeToggle<CR>
-	autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-    if has('nvim')
-        let NERDTreeBookmarksFile = stdpath('data') . '/NERDTreeBookmarks'
-    else
-        let NERDTreeBookmarksFile = '~/.vim' . '/NERDTreeBookmarks'
-    endif
+	" map <leader>n :NERDTreeToggle<CR>
+	" autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+    " if has('nvim')
+        " let NERDTreeBookmarksFile = stdpath('data') . '/NERDTreeBookmarks'
+    " else
+        " let NERDTreeBookmarksFile = '~/.vim' . '/NERDTreeBookmarks'
+    " endif
 
-" vimling:
-	nm <leader>d :call ToggleDeadKeys()<CR>
-	imap <leader>d <esc>:call ToggleDeadKeys()<CR>a
-	nm <leader>i :call ToggleIPA()<CR>
-	imap <leader>i <esc>:call ToggleIPA()<CR>a
-	nm <leader>q :call ToggleProse()<CR>
-
-" Shortcutting split navigation, saving a keypress:
-	map <C-h> <C-w>h
-	map <C-j> <C-w>j
-	map <C-k> <C-w>k
-	map <C-l> <C-w>l
+" " Shortcutting split navigation, saving a keypress:
+" 	map <C-h> <C-w>h
+" 	map <C-j> <C-w>j
+" 	map <C-k> <C-w>k
+" 	map <C-l> <C-w>l
 
 " Replace ex mode with gq
 	map Q gq
 
 " Check file in shellcheck:
 	map <leader>s :!clear && shellcheck %<CR>
-
-" Open my bibliography file in split
-	map <leader>b :vsp<space>$BIB<CR>
-	map <leader>r :vsp<space>$REFER<CR>
 
 " Replace all is aliased to S.
 	nnoremap S :%s//g<Left><Left>
@@ -99,8 +254,6 @@ set ts=4
 
 " Runs a script that cleans out tex build files whenever I close out of a .tex file.
 	autocmd VimLeave *.tex !texclear %
-
-
 
 let g:tex_flavor = 'latex'
 " Ensure files are read as what I want:
@@ -135,3 +288,113 @@ let g:tex_flavor = 'latex'
 if &diff
     highlight! link DiffText MatchParen
 endif
+
+ " ------COC SETTINGS------
+  " prettier command for coc
+  command! -nargs=0 Prettier :CocCommand prettier.formatFile
+  let g:coc_global_extensions = [
+    \ 'coc-snippets',
+    \ 'coc-pairs',
+    \ 'coc-prettier',
+    \ 'coc-tsserver',
+    \ 'coc-html',
+    \ 'coc-css',
+    \ 'coc-json',
+    \ 'coc-angular',
+    \ 'coc-vimtex'
+    \ ]
+
+  " From Coc Readme
+  set updatetime=300
+
+  " Some servers have issues with backup files, see #649
+  set nobackup
+  set nowritebackup
+
+  " don't give |ins-completion-menu| messages.
+  set shortmess+=c
+
+  " always show signcolumns
+  set signcolumn=yes
+
+  " Use tab for trigger completion with characters ahead and navigate.
+  " Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
+  inoremap <silent><expr> <TAB>
+        \ pumvisible() ? "\<C-n>" :
+        \ <SID>check_back_space() ? "\<TAB>" :
+        \ coc#refresh()
+  inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+  function! s:check_back_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~# '\s'
+  endfunction
+
+  " Use <c-space> to trigger completion.
+  inoremap <silent><expr> <c-space> coc#refresh()
+
+  " Use <cr> to confirm completion, `<C-g>u` means break undo chain at current position.
+  " Coc only does snippet and additional edit on confirm.
+  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+  " Or use `complete_info` if your vim support it, like:
+  " inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+
+  " Use `[g` and `]g` to navigate diagnostics
+  nmap <silent> [g <Plug>(coc-diagnostic-prev)
+  nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+  " Remap keys for gotos
+  nmap <silent> gd <Plug>(coc-definition)
+  nmap <silent> gy <Plug>(coc-type-definition)
+  nmap <silent> gi <Plug>(coc-implementation)
+  nmap <silent> gr <Plug>(coc-references)
+
+  function! s:show_documentation()
+    if (index(['vim','help'], &filetype) >= 0)
+      execute 'h '.expand('<cword>')
+    else
+      call CocAction('doHover')
+    endif
+  endfunction
+
+  " Remap for rename current word
+  nmap <rn> <Plug>(coc-rename)
+
+  " Remap for format selected region
+  xmap <leader>f  <Plug>(coc-format-selected)
+  nmap <leader>f  <Plug>(coc-format-selected)
+
+  augroup mygroup
+    autocmd!
+    " Setup formatexpr specified filetype(s).
+    autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+    " Update signature help on jump placeholder
+    autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+  augroup end
+
+  " Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
+  xmap <leader>a  <Plug>(coc-codeaction-selected)
+  nmap <leader>a  <Plug>(coc-codeaction-selected)
+
+  " Remap for do codeAction of current line
+  nmap <leader>ac  <Plug>(coc-codeaction)
+  " Fix autofix problem of current line
+  nmap <leader>qf  <Plug>(coc-fix-current)
+
+  " Create mappings for function text object, requires document symbols feature of languageserver.
+  xmap if <Plug>(coc-funcobj-i)
+  xmap af <Plug>(coc-funcobj-a)
+  omap if <Plug>(coc-funcobj-i)
+  omap af <Plug>(coc-funcobj-a)
+
+  " Use `:Format` to format current buffer
+  command! -nargs=0 Format :call CocAction('format')
+
+  " Use `:Fold` to fold current buffer
+  command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+  " use `:OR` for organize import of current buffer
+  command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+
+  " Add status line support, for integration with other plugin, checkout `:h coc-status`
+  set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
