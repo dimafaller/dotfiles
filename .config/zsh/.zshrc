@@ -84,3 +84,6 @@ source ~/.config/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null
 eval "$(starship init zsh)"
 
+# Install Ruby Gems to ~/gems
+export GEM_HOME="$HOME/.gem"
+export PATH="$HOME/.gem/ruby/2.7.0/bin:$PATH"
