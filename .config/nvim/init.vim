@@ -22,7 +22,7 @@ Plug 'tpope/vim-commentary'
 Plug 'kovetskiy/sxhkd-vim'
 Plug 'ryanoasis/vim-devicons'
 Plug 'mattn/emmet-vim'
-" Plug 'ap/vim-css-color'
+Plug 'ap/vim-css-color'
 Plug 'lervag/vimtex'
 Plug 'morhetz/gruvbox'
 Plug 'mhinz/vim-startify'
@@ -35,8 +35,22 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'sheerun/vim-polyglot'
-Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
+" Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
 call plug#end()
+
+"Colours
+" autocmd VimEnter * HexokinaseTurnOn
+" let g:Hexokinase_highlighters = ['virtual']
+
+  " Git Gutter
+highlight GitGutterAdd guifg=#009900 ctermfg=Green
+highlight GitGutterChange guifg=#bbbb00 ctermfg=Yellow
+highlight GitGutterDelete guifg=#ff2222 ctermfg=Red
+nmap ) <Plug>(GitGutterNextHunk)
+nmap ( <Plug>(GitGutterPrevHunk)
+let g:gitgutter_enabled = 1
+let g:gitgutter_map_keys = 0
+let g:gitgutter_highlight_linenrs = 1
 
 " fzf
 map ; :Files<CR>
@@ -65,7 +79,6 @@ function! WinMove(key)
         exec "wincmd ".a:key
     endif
 endfunction
-
 nnoremap <silent> <C-h> :call WinMove('h')<CR>
 nnoremap <silent> <C-j> :call WinMove('j')<CR>
 nnoremap <silent> <C-k> :call WinMove('k')<CR>
@@ -154,7 +167,36 @@ nnoremap <silent> <C-l> :call WinMove('l')<CR>
   augroup END
 
   let g:NetrwIsOpen=0
-  """""""""""NETRW-END"""""""""""""""""""""""
+
+" -----Code Generation-----
+" Guide navigation
+noremap <leader><Tab> <Esc>/<++><Enter>"_c4l
+inoremap <leader><Tab> <Esc>/<++><Enter>"_c4l
+vnoremap <leader><Tab> <Esc>/<++><Enter>"_c4l
+
+" general insert commands
+inoremap `g <++>
+
+" shell
+map <leader>b i#!/bin/sh<CR><CR>
+autocmd FileType sh inoremap .f ()<Space>{<CR><Tab><++><CR>}<CR><CR><++><Esc>?()<CR>
+autocmd FileType sh inoremap .i if<Space>[<Space>];<Space>then<CR><++><CR>fi<CR><CR><++><Esc>?];<CR>hi<Space>
+autocmd FileType sh inoremap .ei elif<Space>[<Space>];<Space>then<CR><++><CR><Esc>?];<CR>hi<Space>
+autocmd FileType sh inoremap .sw case<Space>""<Space>in<CR><++>)<Space><++><Space>;;<CR><++><CR>esac<CR><CR><++><Esc>?"<CR>i
+autocmd FileType sh inoremap .ca )<Space><++><Space>;;<CR><++><Esc>?)<CR>i
+
+" markdown
+autocmd FileType markdown noremap <leader>r i---<CR>title:<Space><++><CR>author:<Space>"Brodie Robertson"<CR>geometry:<CR>-<Space>top=30mm<CR>-<Space>left=20mm<CR>-<Space>right=20mm<CR>-<Space>bottom=30mm<CR>header-includes:<Space>\|<CR><Tab>\usepackage{float}<CR>\let\origfigure\figure<CR>\let\endorigfigure\endfigure<CR>\renewenvironment{figure}[1][2]<Space>{<CR><Tab>\expandafter\origfigure\expandafter[H]<CR><BS>}<Space>{<CR><Tab>\endorigfigure<CR><BS>}<CR><BS>---<CR><CR>
+autocmd FileType markdown inoremap .i ![](<++>){#fig:<++>}<Space><CR><CR><++><Esc>kkF]i
+autocmd FileType markdown inoremap .a [](<++>)<Space><++><Esc>F]i
+autocmd FileType markdown inoremap .1 #<Space><CR><CR><++><Esc>2k<S-a>
+autocmd FileType markdown inoremap .2 ##<Space><CR><CR><++><Esc>2k<S-a>
+autocmd FileType markdown inoremap .3 ###<Space><CR><CR><++><Esc>2k<S-a>
+autocmd FileType markdown inoremap .4 ####<Space><CR><CR><++><Esc>2k<S-a>
+autocmd FileType markdown inoremap .5 #####<Space><CR><CR><++><Esc>2k<S-a>
+autocmd FileType markdown inoremap .u +<Space><CR><++><Esc>1k<S-a>
+autocmd FileType markdown inoremap .o 1.<Space><CR><++><Esc>1k<S-a>
+autocmd FileType markdown inoremap .f +@fig:
 
 " ------Vim Auto Closetag------
   " filenames like *.xml, *.html, *.xhtml, ...
@@ -222,22 +264,7 @@ nnoremap <A-n> :tabn<CR>
 " Splits open at the bottom and right, which is non-retarded, unlike vim defaults.
 	set splitbelow splitright
 
-" Nerd tree
-	" map <leader>n :NERDTreeToggle<CR>
-	" autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-    " if has('nvim')
-        " let NERDTreeBookmarksFile = stdpath('data') . '/NERDTreeBookmarks'
-    " else
-        " let NERDTreeBookmarksFile = '~/.vim' . '/NERDTreeBookmarks'
-    " endif
-
-" " Shortcutting split navigation, saving a keypress:
-" 	map <C-h> <C-w>h
-" 	map <C-j> <C-w>j
-" 	map <C-k> <C-w>k
-" 	map <C-l> <C-w>l
-
-" Replace ex mode with gq
+"" Replace ex mode with gq
 	map Q gq
 
 " Check file in shellcheck:
@@ -360,9 +387,9 @@ endif
   " Remap for rename current word
   nmap <rn> <Plug>(coc-rename)
 
-  " Remap for format selected region
-  xmap <leader>f  <Plug>(coc-format-selected)
-  nmap <leader>f  <Plug>(coc-format-selected)
+  " " Remap for format selected region
+  " xmap <leader>f  <Plug>(coc-format-selected)
+  " nmap <leader>f  <Plug>(coc-format-selected)
 
   augroup mygroup
     autocmd!
