@@ -254,8 +254,8 @@ nnoremap <A-n> :tabn<CR>
 	autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
 " Goyo plugin makes text more readable when writing prose:
-    autocmd! User GoyoEnter Limelight
-    autocmd! User GoyoLeave Limelight!
+    autocmd! User GoyoEnter gruvbox
+    autocmd! User GoyoLeave gruvbox!
 	map <leader>f :Goyo \| set bg=dark \| set linebreak<CR>
 
 " Spell-check set to <leader>o, 'o' for 'orthography':
