@@ -85,5 +85,5 @@ source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.
 eval "$(starship init zsh)"
 
 # Install Ruby Gems to ~/gems
-export GEM_HOME="$HOME/.gem"
-export PATH="$HOME/.gem/ruby/2.7.0/bin:$PATH"
+export GEM_HOME="$HOME/.config/gem"
+export PATH="$HOME/.config/gem/ruby/2.7.0/bin:$PATH"

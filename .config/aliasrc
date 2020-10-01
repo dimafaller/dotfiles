@@ -17,6 +17,7 @@ alias \
 alias \
   ls='exa --git --group-directories-first --time-style=long-iso' \
   l='ls -lbF' \
+  la='ls -a' \
   ll='ls -la' \
   llm='ll --sort=modified' \
   lsg="exa --git" \

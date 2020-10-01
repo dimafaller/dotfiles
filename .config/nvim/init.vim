@@ -1,14 +1,11 @@
 let mapleader =","
-
-"===Plugins and stuff===
 if ! filereadable(system('echo -n "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/autoload/plug.vim"'))
 	echo "Downloading junegunn/vim-plug to manage plugins..."
 	silent !mkdir -p ${XDG_CONFIG_HOME:-$HOME/.config}/nvim/autoload/
 	silent !curl "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim" > ${XDG_CONFIG_HOME:-$HOME/.config}/nvim/autoload/plug.vim
 	autocmd VimEnter * PlugInstall
 endif
-
- autocmd BufWritePost ~/.local/src/dwmblocks/config.h !cd ~/.local/src/dwmblocks/; sudo make install && { killall -q dwmblocks;setsid dwmblocks & }
+autocmd BufWritePost ~/.local/src/dwmblocks/config.h !cd ~/.local/src/dwmblocks/; sudo make install && { killall -q dwmblocks;setsid dwmblocks & }
 
 call plug#begin(system('echo -n "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/plugged"'))
 Plug 'tpope/vim-surround'
@@ -35,38 +32,72 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/limelight.vim'
 Plug 'sheerun/vim-polyglot'
-" Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
+Plug 'junegunn/gv.vim'
+Plug 'preservim/nerdtree'
+if has('nvim')
+  Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/defx.nvim'
+    Plug 'kristijanhusak/defx-git'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
 call plug#end()
 
-"Colours
-" autocmd VimEnter * HexokinaseTurnOn
-" let g:Hexokinase_highlighters = ['virtual']
-
-  " Git Gutter
-highlight GitGutterAdd guifg=#009900 ctermfg=Green
-highlight GitGutterChange guifg=#bbbb00 ctermfg=Yellow
-highlight GitGutterDelete guifg=#ff2222 ctermfg=Red
-nmap ) <Plug>(GitGutterNextHunk)
-nmap ( <Plug>(GitGutterPrevHunk)
-let g:gitgutter_enabled = 1
-let g:gitgutter_map_keys = 0
-let g:gitgutter_highlight_linenrs = 1
-
-" fzf
-map ; :Files<CR>
-let g:fzf_preview_window = 'right:60%'
-
-" Search CTRLP
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_cmd = 'CtrlP'
-set runtimepath^=~/.config/nvim/bundle/ctrlp.vim
-
-" Theemeing
+nnoremap c "_c
+set nocompatible
+filetype plugin on
+syntax on
+set encoding=utf-8
+set number relativenumber "the relative number feature
 set bg=dark
 colorscheme gruvbox
-"End of theeming
+set go=a
+set mouse=a
+set cursorline "highlitinig the current line
+set nohlsearch
+set clipboard+=unnamedplus
+set ts=4
+nnoremap <A-z> :tabp<CR>
+nnoremap <A-n> :tabn<CR>
+set wildmode=longest,list,full
+autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+let g:limelight_default_coefficient = 0.7
+let g:limelight_conceal_ctermfg = 'gray'
+let g:limelight_conceal_ctermfg = 240
+autocmd! User GoyoEnter Limelight
+autocmd! User GoyoLeave Limelight!
+map <leader>f :Goyo \| set bg=dark \| set linebreak<CR>
+map <leader>o :setlocal spell! spelllang=ru_ru<CR>
+set splitbelow splitright
+map Q gq
+map <leader>s :!clear && shellcheck %<CR>
+nnoremap S :%s//g<Left><Left>
+map <leader>c :w! \| !compiler <c-r>%<CR>
+map <leader>p :!opout <c-r>%<CR><CR>
+autocmd VimLeave *.tex !texclear %
+let g:tex_flavor = 'latex'
+let g:vimwiki_ext2syntax = {'.Rmd': 'markdown', '.rmd': 'markdown','.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}
+map <leader>v :VimwikiIndex
+let g:vimwiki_list = [{'path': '~/vimwiki', 'syntax': 'markdown', 'ext': '.md'}]
+autocmd BufRead,BufNewFile /tmp/calcurse*,~/.calcurse/notes/* set filetype=markdown
+autocmd BufRead,BufNewFile *.ms,*.me,*.mom,*.man set filetype=groff
+autocmd BufRead,BufNewFile *.tex set filetype=tex
+cnoremap w!! execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
+autocmd BufRead,BufNewFile /tmp/neomutt* let g:goyo_width=80
+autocmd BufRead,BufNewFile /tmp/neomutt* :Goyo | set bg=dark
+autocmd BufRead,BufNewFile /tmp/neomutt* map ZZ :Goyo\|x!<CR>
+autocmd BufRead,BufNewFile /tmp/neomutt* map ZQ :Goyo\|q!<CR>
+autocmd BufWritePre * %s/\s\+$//e
+autocmd BufWritepre * %s/\n\+\%$//e
+autocmd BufWritePost files,directories !shortcuts
+autocmd BufWritePost *Xresources,*Xdefaults !xrdb %
+autocmd BufWritePost *sxhkdrc !pkill -USR1 sxhkd
 
-" ===Splits made easy by ctrl-'vimkeys'===
+if &diff
+    highlight! link DiffText MatchParen
+endif
+
 function! WinMove(key)
     let t:curwin = winnr()
     exec "wincmd ".a:key
@@ -79,113 +110,23 @@ function! WinMove(key)
         exec "wincmd ".a:key
     endif
 endfunction
+
 nnoremap <silent> <C-h> :call WinMove('h')<CR>
 nnoremap <silent> <C-j> :call WinMove('j')<CR>
 nnoremap <silent> <C-k> :call WinMove('k')<CR>
 nnoremap <silent> <C-l> :call WinMove('l')<CR>
-" ===End of easy splits===
-
-" Netrw
-  let g:netrw_banner = 0
-  let g:netrw_liststyle = 3
-  let g:netrw_browse_split = 4
-  let g:netrw_winsize = 20
-
-  function! OpenToRight()
-    :normal v
-    let g:path=expand('%:p')
-    execute 'q!'
-    execute 'belowright vnew' g:path
-    :normal <C-w>l
-  endfunction
-
-  function! OpenBelow()
-    :normal v
-    let g:path=expand('%:p')
-    execute 'q!'
-    execute 'belowright new' g:path
-    :normal <C-w>l
-  endfunction
-
-  function! OpenTab()
-    :normal v
-    let g:path=expand('%:p')
-    execute 'q!'
-    execute 'tabedit' g:path
-    :normal <C-w>l
-  endfunction
-
-  function! NetrwMappings()
-      " Hack fix to make ctrl-l work properly
-      noremap <buffer> <A-l> <C-w>l
-      noremap <buffer> <C-l> <C-w>l
-      noremap <silent> <A-f> :call ToggleNetrw()<CR>
-      noremap <buffer> V :call OpenToRight()<cr>
-      noremap <buffer> H :call OpenBelow()<cr>
-      noremap <buffer> T :call OpenTab()<cr>
-  endfunction
-
-  augroup netrw_mappings
-      autocmd!
-      autocmd filetype netrw call NetrwMappings()
-  augroup END
-
-  " Allow for netrw to be toggled
-  function! ToggleNetrw()
-      if g:NetrwIsOpen
-          let i = bufnr("$")
-          while (i >= 1)
-              if (getbufvar(i, "&filetype") == "netrw")
-                  silent exe "bwipeout " . i
-              endif
-              let i-=1
-          endwhile
-          let g:NetrwIsOpen=0
-      else
-          let g:NetrwIsOpen=1
-          silent Lexplore
-      endif
-  endfunction
-
-  " Check before opening buffer on any file
-  function! NetrwOnBufferOpen()
-    if exists('b:noNetrw')
-        return
-    endif
-    call ToggleNetrw()
-  endfun
-
-  " Close Netrw if it's the only buffer open
-  autocmd WinEnter * if winnr('$') == 1 && getbufvar(winbufnr(winnr()), "&filetype") == "netrw" || &buftype == 'quickfix' |q|endif
-
-  " Make netrw act like a project Draw
-  augroup ProjectDrawer
-    autocmd!
-		" Don't open Netrw
-    autocmd VimEnter ~/.config/joplin/tmp/*,/tmp/calcurse*,~/.calcurse/notes/*,~/vimwiki/*,*/.git/COMMIT_EDITMSG let b:noNetrw=1
-    autocmd VimEnter * :call NetrwOnBufferOpen()
-  augroup END
-
-  let g:NetrwIsOpen=0
 
 " -----Code Generation-----
-" Guide navigation
 noremap <leader><Tab> <Esc>/<++><Enter>"_c4l
 inoremap <leader><Tab> <Esc>/<++><Enter>"_c4l
 vnoremap <leader><Tab> <Esc>/<++><Enter>"_c4l
-
-" general insert commands
-inoremap `g <++>
-
-" shell
+inoremap .mn <++>
 map <leader>b i#!/bin/sh<CR><CR>
 autocmd FileType sh inoremap .f ()<Space>{<CR><Tab><++><CR>}<CR><CR><++><Esc>?()<CR>
 autocmd FileType sh inoremap .i if<Space>[<Space>];<Space>then<CR><++><CR>fi<CR><CR><++><Esc>?];<CR>hi<Space>
 autocmd FileType sh inoremap .ei elif<Space>[<Space>];<Space>then<CR><++><CR><Esc>?];<CR>hi<Space>
 autocmd FileType sh inoremap .sw case<Space>""<Space>in<CR><++>)<Space><++><Space>;;<CR><++><CR>esac<CR><CR><++><Esc>?"<CR>i
 autocmd FileType sh inoremap .ca )<Space><++><Space>;;<CR><++><Esc>?)<CR>i
-
-" markdown
 autocmd FileType markdown noremap <leader>r i---<CR>title:<Space><++><CR>author:<Space>"Brodie Robertson"<CR>geometry:<CR>-<Space>top=30mm<CR>-<Space>left=20mm<CR>-<Space>right=20mm<CR>-<Space>bottom=30mm<CR>header-includes:<Space>\|<CR><Tab>\usepackage{float}<CR>\let\origfigure\figure<CR>\let\endorigfigure\endfigure<CR>\renewenvironment{figure}[1][2]<Space>{<CR><Tab>\expandafter\origfigure\expandafter[H]<CR><BS>}<Space>{<CR><Tab>\endorigfigure<CR><BS>}<CR><BS>---<CR><CR>
 autocmd FileType markdown inoremap .i ![](<++>){#fig:<++>}<Space><CR><CR><++><Esc>kkF]i
 autocmd FileType markdown inoremap .a [](<++>)<Space><++><Esc>F]i
@@ -198,128 +139,23 @@ autocmd FileType markdown inoremap .u +<Space><CR><++><Esc>1k<S-a>
 autocmd FileType markdown inoremap .o 1.<Space><CR><++><Esc>1k<S-a>
 autocmd FileType markdown inoremap .f +@fig:
 
-" ------Vim Auto Closetag------
-  " filenames like *.xml, *.html, *.xhtml, ...
-  " These are the file extensions where this plugin is enabled.
-  let g:closetag_filenames = '*.html,*.xhtml,*.jsx,*.js,*.tsx'
+"Vim Auto Closetag (filenames like *.xml, *.html, *.xhtml, etc)
+let g:closetag_filenames = '*.html,*.xhtml,*.jsx,*.js,*.tsx'
+let g:closetag_xhtml_filenames = '*.xml,*.xhtml,*.jsx,*.js,*.tsx'
+let g:closetag_filetypes = 'html,xhtml,jsx,js,tsx'
+let g:closetag_xhtml_filetypes = 'xml,xhtml,jsx,js,tsx'
+let g:closetag_emptyTags_caseSensitive = 1
+let g:closetag_regions = {
+    \ 'typescript.tsx': 'jsxRegion,tsxRegion',
+    \ 'javascript.jsx': 'jsxRegion',
+    \ }
+let g:closetag_shortcut = '>'
+let g:closetag_close_shortcut = '<leader>>'
 
-  " filenames like *.xml, *.xhtml, ...
-  " This will make the list of non-closing tags self-closing in the specified files.
-  let g:closetag_xhtml_filenames = '*.xml,*.xhtml,*.jsx,*.js,*.tsx'
-
-  " filetypes like xml, html, xhtml, ...
-  " These are the file types where this plugin is enabled.
-  let g:closetag_filetypes = 'html,xhtml,jsx,js,tsx'
-
-  " filetypes like xml, xhtml, ...
-  " This will make the list of non-closing tags self-closing in the specified files.
-  let g:closetag_xhtml_filetypes = 'xml,xhtml,jsx,js,tsx'
-
-  " integer value [0|1]
-  " This will make the list of non-closing tags case-sensitive (e.g. `<Link>` will be closed while `<link>` won't.)
-  let g:closetag_emptyTags_caseSensitive = 1
-
-  " Disables auto-close if not in a "valid" region (based on filetype)
-  let g:closetag_regions = {
-      \ 'typescript.tsx': 'jsxRegion,tsxRegion',
-      \ 'javascript.jsx': 'jsxRegion',
-      \ }
-
-  " Shortcut for closing tags, default is '>'
-  let g:closetag_shortcut = '>'
-
-  " Add > at current position without closing the current tag, default is ''
-  let g:closetag_close_shortcut = '<leader>>'
-
-set go=a
-set mouse=a
-set cursorline "highlitinig the current line
-set nohlsearch
-set clipboard+=unnamedplus
-set ts=4
-nnoremap <A-z> :tabp<CR>
-nnoremap <A-n> :tabn<CR>
-" Some basics:
-	nnoremap c "_c
-	set nocompatible
-	filetype plugin on
-	syntax on
-	set encoding=utf-8
-	set number relativenumber "the relative number feature
-
-" Enable autocompletion:
-	set wildmode=longest,list,full
-
-" Disables automatic commenting on newline:
-	autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
-
-" Goyo plugin makes text more readable when writing prose:
-    autocmd! User GoyoEnter gruvbox
-    autocmd! User GoyoLeave gruvbox!
-	map <leader>f :Goyo \| set bg=dark \| set linebreak<CR>
-
-" Spell-check set to <leader>o, 'o' for 'orthography':
-	map <leader>o :setlocal spell! spelllang=ru_ru<CR>
-
-" Splits open at the bottom and right, which is non-retarded, unlike vim defaults.
-	set splitbelow splitright
-
-"" Replace ex mode with gq
-	map Q gq
-
-" Check file in shellcheck:
-	map <leader>s :!clear && shellcheck %<CR>
-
-" Replace all is aliased to S.
-	nnoremap S :%s//g<Left><Left>
-
-" Compile document, be it groff/LaTeX/markdown/etc.
-	map <leader>c :w! \| !compiler <c-r>%<CR>
-
-" Open corresponding .pdf/.html or preview
-	map <leader>p :!opout <c-r>%<CR><CR>
-
-" Runs a script that cleans out tex build files whenever I close out of a .tex file.
-	autocmd VimLeave *.tex !texclear %
-
-let g:tex_flavor = 'latex'
-" Ensure files are read as what I want:
-	let g:vimwiki_ext2syntax = {'.Rmd': 'markdown', '.rmd': 'markdown','.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}
-	map <leader>v :VimwikiIndex
-	let g:vimwiki_list = [{'path': '~/vimwiki', 'syntax': 'markdown', 'ext': '.md'}]
-	autocmd BufRead,BufNewFile /tmp/calcurse*,~/.calcurse/notes/* set filetype=markdown
-	autocmd BufRead,BufNewFile *.ms,*.me,*.mom,*.man set filetype=groff
-	autocmd BufRead,BufNewFile *.tex set filetype=tex
-
-" Save file as sudo on files that require root permission
-	cnoremap w!! execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
-
-" Enable Goyo by default for mutt writing
-	autocmd BufRead,BufNewFile /tmp/neomutt* let g:goyo_width=80
-	autocmd BufRead,BufNewFile /tmp/neomutt* :Goyo | set bg=light
-	autocmd BufRead,BufNewFile /tmp/neomutt* map ZZ :Goyo\|x!<CR>
-	autocmd BufRead,BufNewFile /tmp/neomutt* map ZQ :Goyo\|q!<CR>
-
-" Automatically deletes all trailing whitespace and newlines at end of file on save.
-	autocmd BufWritePre * %s/\s\+$//e
-	autocmd BufWritepre * %s/\n\+\%$//e
-
-" When shortcut files are updated, renew bash and ranger configs with new material:
-	autocmd BufWritePost files,directories !shortcuts
-" Run xrdb whenever Xdefaults or Xresources are updated.
-	autocmd BufWritePost *Xresources,*Xdefaults !xrdb %
-" Update binds when sxhkdrc is updated.
-	autocmd BufWritePost *sxhkdrc !pkill -USR1 sxhkd
-
-" Turns off highlighting on the bits of code that are changed, so the line that is changed is highlighted but the actual text that has changed stands out on the line and is readable.
-if &diff
-    highlight! link DiffText MatchParen
-endif
-
- " ------COC SETTINGS------
-  " prettier command for coc
-  command! -nargs=0 Prettier :CocCommand prettier.formatFile
-  let g:coc_global_extensions = [
+"COC Settings
+"Prettier
+command! -nargs=0 Prettier :CocCommand prettier.formatFile
+let g:coc_global_extensions = [
     \ 'coc-snippets',
     \ 'coc-pairs',
     \ 'coc-prettier',
@@ -330,98 +166,180 @@ endif
     \ 'coc-angular',
     \ 'coc-vimtex'
     \ ]
-
-  " From Coc Readme
-  set updatetime=300
-
-  " Some servers have issues with backup files, see #649
-  set nobackup
-  set nowritebackup
-
-  " don't give |ins-completion-menu| messages.
-  set shortmess+=c
-
-  " always show signcolumns
-  set signcolumn=yes
-
-  " Use tab for trigger completion with characters ahead and navigate.
-  " Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
-  inoremap <silent><expr> <TAB>
+set updatetime=300
+set nobackup
+set nowritebackup
+set shortmess+=c
+set signcolumn=yes
+inoremap <silent><expr> <TAB>
         \ pumvisible() ? "\<C-n>" :
         \ <SID>check_back_space() ? "\<TAB>" :
         \ coc#refresh()
-  inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-  function! s:check_back_space() abort
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+function! s:check_back_space() abort
     let col = col('.') - 1
     return !col || getline('.')[col - 1]  =~# '\s'
-  endfunction
-
-  " Use <c-space> to trigger completion.
-  inoremap <silent><expr> <c-space> coc#refresh()
-
-  " Use <cr> to confirm completion, `<C-g>u` means break undo chain at current position.
-  " Coc only does snippet and additional edit on confirm.
-  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-  " Or use `complete_info` if your vim support it, like:
-  " inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
-
-  " Use `[g` and `]g` to navigate diagnostics
-  nmap <silent> [g <Plug>(coc-diagnostic-prev)
-  nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-  " Remap keys for gotos
-  nmap <silent> gd <Plug>(coc-definition)
-  nmap <silent> gy <Plug>(coc-type-definition)
-  nmap <silent> gi <Plug>(coc-implementation)
-  nmap <silent> gr <Plug>(coc-references)
-
-  function! s:show_documentation()
+endfunction
+inoremap <silent><expr> <c-space> coc#refresh()
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+function! s:show_documentation()
     if (index(['vim','help'], &filetype) >= 0)
       execute 'h '.expand('<cword>')
     else
       call CocAction('doHover')
     endif
-  endfunction
-
-  " Remap for rename current word
-  nmap <rn> <Plug>(coc-rename)
-
-  " " Remap for format selected region
-  " xmap <leader>f  <Plug>(coc-format-selected)
-  " nmap <leader>f  <Plug>(coc-format-selected)
-
-  augroup mygroup
+endfunction
+nmap <rn> <Plug>(coc-rename)
+augroup mygroup
     autocmd!
-    " Setup formatexpr specified filetype(s).
     autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-    " Update signature help on jump placeholder
     autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-  augroup end
+augroup end
+xmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>ac  <Plug>(coc-codeaction)
+nmap <leader>qf  <Plug>(coc-fix-current)
+xmap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap if <Plug>(coc-funcobj-i)
+omap af <Plug>(coc-funcobj-a)
+command! -nargs=0 Format :call CocAction('format')
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
-  " Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
-  xmap <leader>a  <Plug>(coc-codeaction-selected)
-  nmap <leader>a  <Plug>(coc-codeaction-selected)
+"DEFX
+"Bingings start
+nnoremap <C-n> :Defx<CR>
+nnoremap <silent> <leader>ff :Defx -toggle=0 -search=`expand('%:p')`<CR>
+autocmd FileType defx call s:defx_my_settings()
+" Define mappings
+function! s:defx_my_settings() abort
+	nnoremap <nowait><silent><buffer><expr> c
+		\ defx#do_action('copy')
+	nnoremap <silent><buffer><expr> x
+		\ defx#do_action('move')
+	nnoremap <nowait><silent><buffer><expr> d
+		\ defx#do_action('remove')
+	nnoremap <silent><buffer><expr> p
+		\ defx#do_action('paste')
+	nnoremap <silent><buffer><expr> r
+		\ defx#do_action('rename')
+	nnoremap <silent><buffer><expr> K
+		\ defx#do_action('new_directory')
+	noremap <silent><buffer><expr> m
+		\ defx#do_action('new_file')
+	nnoremap <silent><buffer><expr> M
+		\ defx#do_action('new_multiple_files')
+	nnoremap <silent><buffer><expr> <CR>
+		\ defx#is_directory() ?
+		\ defx#do_action('open_or_close_tree') :
+		\ defx#do_action('drop')
+	nnoremap <silent><buffer><expr> o
+		\ defx#is_directory() ?
+		\ defx#do_action('open_or_close_tree') :
+		\ defx#do_action('drop')
+	nnoremap <silent><buffer><expr> <2-LeftMouse>
+		\ defx#is_directory() ?
+		\ defx#do_action('open_or_close_tree') :
+		\ defx#do_action('drop')
+	nnoremap <silent><buffer><expr> i
+		\ defx#do_action('close_tree')
+	nnoremap <silent><buffer><expr> l
+		\ defx#do_action('open_directory')
+	nnoremap <silent><buffer><expr> h
+		\ defx#do_action('cd', ['..'])
+	nnoremap <silent><buffer><expr> v
+		\ defx#do_action('toggle_select')
+	nnoremap <silent><buffer><expr> V
+		\ defx#do_action('clear_select_all')
+	nnoremap <silent><buffer><expr> *
+		\ defx#do_action('toggle_select_all')
+	nnoremap <silent><buffer><expr> E
+		\ defx#do_action('open', 'vsplit')
+	nnoremap <silent><buffer><expr> P
+		\ defx#do_action('preview')
+	nnoremap <silent><buffer><expr> C
+		\ defx#do_action('toggle_columns', 'indent:icon:filename:type:size:time')
+	nnoremap <silent><buffer><expr> S
+		\ defx#do_action('toggle_sort', 'time')
+	nnoremap <silent><buffer><expr> s
+		\ defx#do_action('search')
+	nnoremap <silent><buffer><expr> !
+		\ defx#do_action('execute_command')
+	nnoremap <silent><buffer><expr> X
+		\ defx#do_action('execute_system')
+	nnoremap <silent><buffer><expr> yy
+		\ defx#do_action('yank_path')
+	nnoremap <silent><buffer><expr> .
+		\ defx#do_action('toggle_ignored_files')
+	nnoremap <silent><buffer><expr> ;
+		\ defx#do_action('repeat')
+	nnoremap <silent><buffer><expr> ~
+		\ defx#do_action('cd')
+	nnoremap <silent><buffer><expr> q
+		\ defx#do_action('quit')
+	nnoremap <silent><buffer><expr> j
+		\ line('.') == line('$') ? 'gg' : 'j'
+	nnoremap <silent><buffer><expr> k
+		\ line('.') == 1 ? 'G' : 'k'
+	nnoremap <silent><buffer><expr> <C-r>
+		\ defx#do_action('redraw')
+	nnoremap <silent><buffer><expr> <C-g>
+		\ defx#do_action('print')
+	nnoremap <silent><buffer><expr> cd
+		\ defx#do_action('change_vim_cwd')
+endfunction
 
-  " Remap for do codeAction of current line
-  nmap <leader>ac  <Plug>(coc-codeaction)
-  " Fix autofix problem of current line
-  nmap <leader>qf  <Plug>(coc-fix-current)
+"Defx configs
+call defx#custom#option('_', {
+  \ 'winwidth': 30,
+  \ 'split': 'vertical',
+  \ 'direction': 'topleft',
+  \ 'show_ignored_files': 0,
+  \ 'resume': 1,
+  \ 'toggle': 1,
+  \ 'columns': 'mark:indent:icon:filename',
+  \ })
 
-  " Create mappings for function text object, requires document symbols feature of languageserver.
-  xmap if <Plug>(coc-funcobj-i)
-  xmap af <Plug>(coc-funcobj-a)
-  omap if <Plug>(coc-funcobj-i)
-  omap af <Plug>(coc-funcobj-a)
+call defx#custom#column('icon', {
+  \ 'directory_icon': '',
+  \ 'opened_icon': 'ﱮ',
+  \ })
 
-  " Use `:Format` to format current buffer
-  command! -nargs=0 Format :call CocAction('format')
+call defx#custom#column('mark', {
+  \ 'readonly_icon': '',
+  \ 'selected_icon': '',
+  \ })
 
-  " Use `:Fold` to fold current buffer
-  command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+"Defx-git configs
+call defx#custom#column('git', 'indicators', {
+  \ 'Modified'  : '✹',
+  \ 'Staged'    : '✚',
+  \ 'Untracked' : '✭',
+  \ 'Renamed'   : '➜',
+  \ 'Unmerged'  : '═',
+  \ 'Ignored'   : '☒',
+  \ 'Deleted'   : '✖',
+  \ 'Unknown'   : '?'
+  \ })
 
-  " use `:OR` for organize import of current buffer
-  command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+"Git Gutter
+highlight GitGutterAdd guifg=#009900 ctermfg=Green
+highlight GitGutterChange guifg=#bbbb00 ctermfg=Yellow
+highlight GitGutterDelete guifg=#ff2222 ctermfg=Red
+nmap ) <Plug>(GitGutterNextHunk)
+nmap ( <Plug>(GitGutterPrevHunk)
+let g:gitgutter_enabled = 1
+let g:gitgutter_map_keys = 0
+let g:gitgutter_highlight_linenrs = 1
 
-  " Add status line support, for integration with other plugin, checkout `:h coc-status`
-  set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+"fzf
+map ; :Files<CR>
+let g:fzf_preview_window = 'right:50%'
