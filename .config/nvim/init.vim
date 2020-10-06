@@ -10,16 +10,18 @@ autocmd BufWritePost ~/.local/src/dwmblocks/config.h !cd ~/.local/src/dwmblocks/
 call plug#begin(system('echo -n "${XDG_CONFIG_HOME:-$HOME/.config}/nvim/plugged"'))
 Plug 'tpope/vim-surround'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'preservim/nerdtree'
 Plug 'junegunn/goyo.vim'
 Plug 'PotatoesMaster/i3-vim-syntax'
 Plug 'jreybert/vimagit'
 Plug 'bling/vim-airline'
+Plug 'preservim/tagbar'
 Plug 'tpope/vim-commentary'
 Plug 'kovetskiy/sxhkd-vim'
 Plug 'ryanoasis/vim-devicons'
 Plug 'mattn/emmet-vim'
-Plug 'ap/vim-css-color'
+" Plug 'ap/vim-css-color'
+Plug 'norcalli/nvim-colorizer.lua'
+Plug 'ap/vim-buftabline'
 Plug 'lervag/vimtex'
 Plug 'morhetz/gruvbox'
 Plug 'mhinz/vim-startify'
@@ -28,23 +30,26 @@ Plug 'alvan/vim-closetag'
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 Plug 'machakann/vim-sandwich'
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
 Plug 'junegunn/limelight.vim'
-Plug 'sheerun/vim-polyglot'
 Plug 'junegunn/gv.vim'
-Plug 'preservim/nerdtree'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'sheerun/vim-polyglot'
+Plug 'kristijanhusak/defx-icons'
+Plug 'kristijanhusak/defx-git'
 if has('nvim')
   Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
 else
   Plug 'Shougo/defx.nvim'
-    Plug 'kristijanhusak/defx-git'
   Plug 'roxma/nvim-yarp'
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
 call plug#end()
 
+set termguicolors
+lua require'colorizer'.setup()
 nnoremap c "_c
+set noshowcmd
+set cmdheight=1
 set nocompatible
 filetype plugin on
 syntax on
@@ -58,8 +63,8 @@ set cursorline "highlitinig the current line
 set nohlsearch
 set clipboard+=unnamedplus
 set ts=4
-nnoremap <A-z> :tabp<CR>
-nnoremap <A-n> :tabn<CR>
+nnoremap <TAB> :tabp<CR>
+nnoremap <A-TAB> :tabn<CR>
 set wildmode=longest,list,full
 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 let g:limelight_default_coefficient = 0.7
@@ -72,6 +77,7 @@ map <leader>o :setlocal spell! spelllang=ru_ru<CR>
 set splitbelow splitright
 map Q gq
 map <leader>s :!clear && shellcheck %<CR>
+map ; :FZF --reverse --info=inline <CR>
 nnoremap S :%s//g<Left><Left>
 map <leader>c :w! \| !compiler <c-r>%<CR>
 map <leader>p :!opout <c-r>%<CR><CR>
@@ -93,7 +99,7 @@ autocmd BufWritepre * %s/\n\+\%$//e
 autocmd BufWritePost files,directories !shortcuts
 autocmd BufWritePost *Xresources,*Xdefaults !xrdb %
 autocmd BufWritePost *sxhkdrc !pkill -USR1 sxhkd
-
+nmap <F3> :TagbarToggle<CR>
 if &diff
     highlight! link DiffText MatchParen
 endif
@@ -127,7 +133,7 @@ autocmd FileType sh inoremap .i if<Space>[<Space>];<Space>then<CR><++><CR>fi<CR>
 autocmd FileType sh inoremap .ei elif<Space>[<Space>];<Space>then<CR><++><CR><Esc>?];<CR>hi<Space>
 autocmd FileType sh inoremap .sw case<Space>""<Space>in<CR><++>)<Space><++><Space>;;<CR><++><CR>esac<CR><CR><++><Esc>?"<CR>i
 autocmd FileType sh inoremap .ca )<Space><++><Space>;;<CR><++><Esc>?)<CR>i
-autocmd FileType markdown noremap <leader>r i---<CR>title:<Space><++><CR>author:<Space>"Brodie Robertson"<CR>geometry:<CR>-<Space>top=30mm<CR>-<Space>left=20mm<CR>-<Space>right=20mm<CR>-<Space>bottom=30mm<CR>header-includes:<Space>\|<CR><Tab>\usepackage{float}<CR>\let\origfigure\figure<CR>\let\endorigfigure\endfigure<CR>\renewenvironment{figure}[1][2]<Space>{<CR><Tab>\expandafter\origfigure\expandafter[H]<CR><BS>}<Space>{<CR><Tab>\endorigfigure<CR><BS>}<CR><BS>---<CR><CR>
+autocmd FileType markdown noremap <leader>r i---<CR>title:<Space><++><CR>author:<Space>"Dima Faller"<CR>geometry:<CR>-<Space>top=30mm<CR>-<Space>left=20mm<CR>-<Space>right=20mm<CR>-<Space>bottom=30mm<CR>header-includes:<Space>\|<CR><Tab>\usepackage{float}<CR>\let\origfigure\figure<CR>\let\endorigfigure\endfigure<CR>\renewenvironment{figure}[1][2]<Space>{<CR><Tab>\expandafter\origfigure\expandafter[H]<CR><BS>}<Space>{<CR><Tab>\endorigfigure<CR><BS>}<CR><BS>---<CR><CR>
 autocmd FileType markdown inoremap .i ![](<++>){#fig:<++>}<Space><CR><CR><++><Esc>kkF]i
 autocmd FileType markdown inoremap .a [](<++>)<Space><++><Esc>F]i
 autocmd FileType markdown inoremap .1 #<Space><CR><CR><++><Esc>2k<S-a>
@@ -231,12 +237,10 @@ function! s:defx_my_settings() abort
 		\ defx#do_action('paste')
 	nnoremap <silent><buffer><expr> r
 		\ defx#do_action('rename')
-	nnoremap <silent><buffer><expr> K
+	nnoremap <silent><buffer><expr> ND
 		\ defx#do_action('new_directory')
-	noremap <silent><buffer><expr> m
+	noremap <silent><buffer><expr> NF
 		\ defx#do_action('new_file')
-	nnoremap <silent><buffer><expr> M
-		\ defx#do_action('new_multiple_files')
 	nnoremap <silent><buffer><expr> <CR>
 		\ defx#is_directory() ?
 		\ defx#do_action('open_or_close_tree') :
@@ -263,6 +267,8 @@ function! s:defx_my_settings() abort
 		\ defx#do_action('toggle_select_all')
 	nnoremap <silent><buffer><expr> E
 		\ defx#do_action('open', 'vsplit')
+	nnoremap <silent><buffer><expr> t
+		\ defx#do_action('open', 'tab split')
 	nnoremap <silent><buffer><expr> P
 		\ defx#do_action('preview')
 	nnoremap <silent><buffer><expr> C
@@ -305,7 +311,7 @@ call defx#custom#option('_', {
   \ 'show_ignored_files': 0,
   \ 'resume': 1,
   \ 'toggle': 1,
-  \ 'columns': 'mark:indent:icon:filename',
+  \ 'columns': 'mark:indent:icon:filename:mark',
   \ })
 
 call defx#custom#column('icon', {
@@ -317,7 +323,19 @@ call defx#custom#column('mark', {
   \ 'readonly_icon': '',
   \ 'selected_icon': '',
   \ })
-
+let g:defx_icons_enable_syntax_highlight = 1
+let g:defx_icons_column_length = 1
+let g:defx_icons_directory_icon = ''
+let g:defx_icons_mark_icon = '*'
+let g:defx_icons_copy_icon = ''
+let g:defx_icons_move_icon = ''
+let g:defx_icons_parent_icon = ''
+let g:defx_icons_default_icon = ''
+let g:defx_icons_directory_symlink_icon = ''
+" Options below are applicable only when using "tree" feature
+let g:defx_icons_root_opened_tree_icon = ''
+let g:defx_icons_nested_opened_tree_icon = ''
+let g:defx_icons_nested_closed_tree_icon = ''
 "Defx-git configs
 call defx#custom#column('git', 'indicators', {
   \ 'Modified'  : '✹',
@@ -341,5 +359,42 @@ let g:gitgutter_map_keys = 0
 let g:gitgutter_highlight_linenrs = 1
 
 "fzf
-map ; :Files<CR>
-let g:fzf_preview_window = 'right:50%'
+let g:fzf_action = {
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
+let g:fzf_history_dir = '~/.local/share/fzf-history'
+let g:fzf_preview_window = 'right:60%'
+let g:fzf_layout = { 'window': { 'width': 0.6, 'height': 0.4 } }
+
+function! s:build_quickfix_list(lines)
+  call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
+  copen
+  cc
+endfunction
+let g:fzf_action = {
+  \ 'ctrl-q': function('s:build_quickfix_list'),
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
+
+let g:fzf_layout = { 'down': '40%' }
+let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+let g:fzf_layout = { 'window': 'enew' }
+let g:fzf_layout = { 'window': '-tabnew' }
+let g:fzf_layout = { 'window': '10new' }
+let g:fzf_colors =
+\ { 'fg':      ['fg', 'Normal'],
+  \ 'bg':      ['bg', 'Normal'],
+  \ 'hl':      ['fg', 'Comment'],
+  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+  \ 'hl+':     ['fg', 'Statement'],
+  \ 'info':    ['fg', 'PreProc'],
+  \ 'border':  ['fg', 'Ignore'],
+  \ 'prompt':  ['fg', 'Conditional'],
+  \ 'pointer': ['fg', 'Exception'],
+  \ 'marker':  ['fg', 'Keyword'],
+  \ 'spinner': ['fg', 'Label'],
+  \ 'header':  ['fg', 'Comment'] }
+let g:fzf_preview_window = 'right:60%'
