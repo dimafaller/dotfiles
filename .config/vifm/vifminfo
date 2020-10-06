@@ -1,0 +1,85 @@
+# You can edit this file by hand, but it's recommended not to do that.
+
+# Marks:
+'H
+	/home/d/
+	..
+1601719072
+'b
+	/home/d/bin/
+	..
+1601719072
+'h
+	/home/d/
+	..
+1601719072
+'z
+	/home/d/.config/vifm
+	..
+1601719072
+
+# Bookmarks:
+
+# TUI:
+al
+q0
+v2
+ov
+m-1
+l2
+r2
+
+# Left window history (oldest to newest):
+d/home/d/.config/nvim
+	..
+0
+d/home/d/.config
+	qutebrowser
+20
+d/home/d/.config/qutebrowser
+	..
+0
+d/home/d/.config
+	ranger
+20
+d/home/d
+	dimafaller
+12
+d/home/d/dimafaller
+	_posts
+4
+d/home/d/dimafaller/_posts
+	2020-09-23-Udobnii-gorod.md
+2
+d
+
+# Right window history (oldest to newest):
+D/home/d/.config/nvim
+	..
+0
+D
+
+# Command line history (oldest to newest):
+
+# Search history (oldest to newest):
+
+# Prompt history (oldest to newest):
+
+# Local filter history (oldest to newest):
+
+# Registers:
+
+# Directory stack (oldest to newest):
+
+# Trash content:
+
+# State:
+f
+i1
+[.1
+[F
+F
+I1
+].1
+]F
+s0

@@ -1,0 +1,102 @@
+format = """\
+	$time\
+	$username\
+	$hostname\
+	$directory\
+	$git_branch\
+	$git_commit\
+	$git_state\
+	$git_status\
+	$package\
+	$nodejs\
+	$python\
+	$java\
+	$line_break\
+	$cmd_duration\
+	$character\
+"""
+add_newline = false
+[character]
+success_symbol = "[\\$](bold green)"
+error_symbol = "[\\$](bold red) "
+[cmd_duration]
+format = "[$duration](bold yellow) "
+[hostname]
+format = "on [$hostname]($style) "
+ssh_only = false
+disabled = false
+style = "green bold"
+show_always = true
+[username]
+format = "via [$user]($style) "
+disabled = false
+show_always = true
+style_user = "red bold"
+style_root = "red bold"
+[directory]
+format = "in [$path]($style)[$read_only]($read_only_style) "
+disabled = false
+show_always = true
+style = "yellow bold"
+# # Don't print a new line at the start of the prompt
+
+# add_newline = false
+
+# prompt_order = [
+#     "directory",
+#     "git_branch",
+#     "git_commit",
+#     "git_status",
+#     "package",
+#     "line_break",
+#     "character"
+# ]
+
+# [git_branch]
+# symbol = "🌱 "
+# truncation_length = 4
+# truncation_symbol = ""
+
+# [git_commit]
+# commit_hash_length = 4
+
+# [git_state]
+# progress_divider = " of "
+# cherry_pick = "🍒 PICKING"
+
+# [git_status]
+# conflicted = "🏳"
+# ahead = "🏎💨"
+# behind = "😰"
+# diverged = "😵"
+# untracked = "🤷‍"
+# stashed = "📦"
+# modified = "📝"
+# staged.value = "++"
+# staged.style = "green"
+# staged_count.enabled = true
+# staged_count.style = "green"
+# renamed = "👅"
+# deleted = "🗑"
+
+# [python]
+# symbol = "👾 "
+# pyenv_version_name = true
+# pyenv_prefix = "foo "
+
+# [custom.zsh]
+# command = "echo 🚀$USER"
+# when = "~/.config/.prompt-zsh.sh"
+# prefix = ""
+
+# [character]
+# symbol = "λ ›"
+# vicmd_symbol = "λ ·"
+# style_success = "fg:#cccccc"
+# style_failure = "red"
+
+# [directory]
+# disabled = false
+# prefix = "$USER"
+# truncate_to_repo = false
+# style = "bold fg:#94bdff"
