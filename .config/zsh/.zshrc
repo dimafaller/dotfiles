@@ -81,7 +81,7 @@ bindkey '^e' edit-command-line
 source ~/.config/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # Load syntax highlighting; should be last.
-source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null
+source ~/.config/zsh/fsh/fast-syntax-highlighting.plugin.zsh
 eval "$(starship init zsh)"
 
 # Install Ruby Gems to ~/gems

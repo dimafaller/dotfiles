@@ -49,8 +49,20 @@ d/home/d/dimafaller
 	_posts
 4
 d/home/d/dimafaller/_posts
-	2020-09-23-Udobnii-gorod.md
+	..
+0
+d/home/d/dimafaller
+	_layouts
 2
+d/home/d/dimafaller/_layouts
+	..
+0
+d/home/d/dimafaller
+	_includes
+1
+d/home/d/dimafaller/_includes
+	content.html
+3
 d
 
 # Right window history (oldest to newest):
@@ -60,6 +72,8 @@ D/home/d/.config/nvim
 D
 
 # Command line history (oldest to newest):
+:runexec
+:help
 
 # Search history (oldest to newest):
 
