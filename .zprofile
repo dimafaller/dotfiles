@@ -10,8 +10,8 @@ export PATH="$PATH:$(du "$HOME/.local/bin" | cut -f2 | paste -sd ':')"
 
 # Default programs:
 export EDITOR="nvim"
-export TERMINAL="st"
-export BROWSER="brave"
+export TERMINAL="LIBGL_ALWAYS_SOFTWARE=1 alacritty"
+export BROWSER="firefox"
 export READER="zathura"
 export MESSENGER="telegram-desktop"
 # ~/ Clean-up:
